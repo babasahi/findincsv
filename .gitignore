@@ -1,0 +1,17 @@
+# deps / build
+node_modules/
+dist/
+.astro/
+
+# tests
+playwright-report/
+test-results/
+tests/fixtures/generated/
+
+# env & secrets — never commit keys
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store

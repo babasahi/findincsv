@@ -1,0 +1,33 @@
+{
+  "name": "findincsv",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "node scripts/privacy-lint.mjs && astro check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "perf": "node scripts/perf.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@sentry/browser": "^10.66.0",
+    "astro": "^7.1.0",
+    "papaparse": "^5.5.4",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/papaparse": "^5.5.2",
+    "vitest": "^4.1.10"
+  }
+}
