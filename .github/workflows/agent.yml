@@ -1,0 +1,42 @@
+name: Scheduled agent (disabled — manual only for now)
+
+# The overnight maintenance loop. INTENTIONALLY not scheduled yet: the daily
+# loop runs interactively until the human trusts it. To enable later,
+# uncomment the `schedule` block below. Requires ANTHROPIC_API_KEY as an
+# Actions secret and the Claude GitHub App installed (see SETUP.md).
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 2 * * *' # 02:00 UTC daily
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run the daily triage loop
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: '/daily'
+          claude_args: '--max-turns 60'

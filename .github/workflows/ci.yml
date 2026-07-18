@@ -1,0 +1,77 @@
+name: CI
+
+# Runs on every PR and push. Branch protection must require the "test" job
+# (see SETUP.md) so no PR can merge red.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Privacy lint (telemetry must never touch file/row/query data)
+        run: node scripts/privacy-lint.mjs
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: E2E tests (includes telemetry no-leak test)
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  perf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Synthetic 1M-row search performance check
+        run: node scripts/perf.mjs
+        env:
+          # CI runners are slow and shared; generous budgets catch
+          # order-of-magnitude regressions without flaking.
+          PERF_BUDGET_INDEX: '60000'
+          PERF_BUDGET_EXACT: '1000'
+          PERF_BUDGET_FUZZY: '5000'
