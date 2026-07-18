@@ -1,0 +1,67 @@
+---
+import { getStrings, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = getStrings(locale);
+
+// Only the strings the client controller needs at runtime.
+const runtimeStrings = {
+  fileMeta: t.fileMeta,
+  parsing: t.parsing,
+  indexing: t.indexing,
+  statusAll: t.statusAll,
+  statusMatches: t.statusMatches,
+  statusCapped: t.statusCapped,
+  noMatches: t.noMatches,
+  errorParse: t.errorParse,
+};
+---
+
+<section class="tool" data-tool>
+  <script type="application/json" data-strings set:html={JSON.stringify(runtimeStrings)} />
+
+  <div class="dropzone" data-dropzone tabindex="0" role="button" aria-label={t.dropHint}>
+    <input type="file" accept=".csv,text/csv,text/plain" hidden data-file-input />
+    <p>{t.dropHint}</p>
+    <p class="privacy-note">{t.privacyNote}</p>
+  </div>
+
+  <p class="file-meta" data-file-meta hidden></p>
+
+  <div class="controls" data-controls hidden>
+    <label class="control control-search">
+      <span class="control-label">{t.searchLabel}</span>
+      <input
+        type="search"
+        data-search
+        placeholder={t.searchPlaceholder}
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </label>
+    <label class="control">
+      <span class="control-label">{t.columnLabel}</span>
+      <select data-column title={t.columnHint}>
+        <option value="all">{t.allColumns}</option>
+      </select>
+    </label>
+    <label class="control control-toggle">
+      <input type="checkbox" checked data-fuzzy />
+      <span>{t.fuzzyLabel}</span>
+    </label>
+  </div>
+
+  <p class="status" data-status aria-live="polite"></p>
+
+  <div class="table-wrap" data-table-wrap></div>
+</section>
+
+<script>
+  import { initTool } from './tool-client';
+  for (const el of document.querySelectorAll<HTMLElement>('[data-tool]')) {
+    initTool(el);
+  }
+</script>

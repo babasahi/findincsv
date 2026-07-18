@@ -1,0 +1,297 @@
+/*
+ * Global styles. RTL-first: use CSS logical properties (inline-start/end)
+ * everywhere so the same rules lay out correctly in both directions.
+ * Arabic-capable system font stack; self-hosted webfont is a backlog item.
+ */
+
+:root {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Arabic', 'Segoe UI Arabic',
+    'Noto Sans Arabic', 'Noto Naskh Arabic', Tahoma, sans-serif;
+  --color-text: #1a2233;
+  --color-muted: #5a6478;
+  --color-bg: #ffffff;
+  --color-surface: #f5f7fa;
+  --color-border: #d9dfe8;
+  --color-accent: #0b6e4f;
+  --color-accent-soft: #e6f4ef;
+  --color-mark: #ffe08a;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: min(72rem, 100% - 2rem);
+  margin-inline: auto;
+  padding-block: 1.5rem 3rem;
+}
+
+/* ---------- header / footer ---------- */
+
+.site-header {
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-header nav {
+  width: min(72rem, 100% - 2rem);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-block: 0.75rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+
+.site-header a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.site-header a:hover {
+  color: var(--color-accent);
+}
+
+.site-footer {
+  border-block-start: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* ---------- hero ---------- */
+
+.hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin-block: 0.5rem 0.25rem;
+}
+
+.hero .tagline {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  margin-block-start: 0;
+}
+
+/* ---------- tool ---------- */
+
+.tool {
+  margin-block: 1.5rem;
+}
+
+.dropzone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms;
+}
+
+.dropzone:hover,
+.dropzone:focus-visible,
+.dropzone.is-dragover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  outline: none;
+}
+
+.dropzone p {
+  margin: 0.25rem 0;
+}
+
+.privacy-note {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.file-meta {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-label {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.control-search {
+  flex: 1 1 18rem;
+}
+
+.control input[type='search'],
+.control select {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: inherit;
+}
+
+.control input[type='search']:focus,
+.control select:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent-soft);
+}
+
+.control-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block-end: 0.55rem;
+  cursor: pointer;
+}
+
+.status {
+  min-height: 1.5rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- results table ---------- */
+
+.table-wrap {
+  overflow: auto;
+  max-height: 65vh;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.table-wrap:empty {
+  display: none;
+}
+
+.table-wrap table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding: 0.5rem 0.75rem;
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  white-space: nowrap;
+  max-width: 28rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-wrap thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+  font-weight: 600;
+}
+
+.table-wrap tbody tr:hover {
+  background: var(--color-accent-soft);
+}
+
+mark {
+  background: var(--color-mark);
+  border-radius: 3px;
+  padding-inline: 1px;
+}
+
+/* ---------- content pages (blog, landing) ---------- */
+
+.prose {
+  max-width: 46rem;
+}
+
+.prose h1 {
+  line-height: 1.3;
+}
+
+.prose img {
+  max-width: 100%;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list li {
+  margin-block: 1rem;
+}
+
+.post-list .post-date {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  display: block;
+}
+
+/* ---------- features ---------- */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin-block: 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.features li {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.features h3 {
+  margin-block: 0 0.25rem;
+  font-size: 1rem;
+}
+
+.features p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
