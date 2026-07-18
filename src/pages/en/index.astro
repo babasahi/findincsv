@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import Tool from '../../components/Tool.astro';
+import { getStrings } from '../../i18n';
+
+const t = getStrings('en');
+---
+
+<Base locale="en">
+  <section class="hero">
+    <h1>Find a name inside a CSV file — even if you don't know the exact spelling</h1>
+    <p class="tagline">{t.tagline}</p>
+  </section>
+
+  <Tool locale="en" />
+
+  <ul class="features">
+    <li>
+      <h3>Correct Arabic matching</h3>
+      <p>
+        «مُحَمَّد», «محمّد» and «محمد» are one result: diacritics ignored, alef/hamza,
+        ta-marbuta and Arabic-Indic digits unified.
+      </p>
+    </li>
+    <li>
+      <h3>Order-independent search</h3>
+      <p>
+        Type just the first and last name — "saleh dahi" finds "Saleh Mahfoud Dahi" even
+        when you don't know the father's name.
+      </p>
+    </li>
+    <li>
+      <h3>Typo tolerance</h3>
+      <p>"soleh" finds "saleh", "dohi" finds "dahi" — and you can switch it off.</p>
+    </li>
+    <li>
+      <h3>Huge files, full privacy</h3>
+      <p>
+        A million rows without freezing the browser, and your file never leaves your
+        device — no uploads, no servers, no logging.
+      </p>
+    </li>
+  </ul>
+</Base>

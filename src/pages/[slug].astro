@@ -1,0 +1,25 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+/**
+ * Keyword landing pages: one page per long-tail query, served at the root
+ * (Arabic slugs included), all funneling to the tool. Content lives in
+ * /landing/*.md — see CLAUDE.md before adding more.
+ */
+export async function getStaticPaths() {
+  const pages = await getCollection('landing');
+  return pages.map((page) => ({ params: { slug: page.data.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+const locale = page.data.lang;
+---
+
+<Base locale={locale} title={`${page.data.title} — FindInCSV`} description={page.data.description}>
+  <article class="prose" lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <h1>{page.data.title}</h1>
+    <Content />
+  </article>
+</Base>

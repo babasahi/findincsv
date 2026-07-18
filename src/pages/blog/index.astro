@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft && data.lang === 'ar')).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+);
+---
+
+<Base locale="ar" title="المدونة — FindInCSV" description="مقالات عملية عن البحث في البيانات والأسماء العربية وملفات CSV.">
+  <h1>المدونة</h1>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+          <span class="post-date">
+            {post.data.pubDate.toLocaleDateString('ar', { dateStyle: 'long' })} ·{' '}
+            {post.data.author}
+          </span>
+          <p>{post.data.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

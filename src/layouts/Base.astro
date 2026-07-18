@@ -1,0 +1,72 @@
+---
+import '../styles/global.css';
+import { BRAND } from '../config';
+import { getStrings, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+}
+
+const { locale, title, description } = Astro.props;
+const t = getStrings(locale);
+const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
+const pageTitle = title ?? t.siteTitle;
+const pageDescription = description ?? t.metaDescription;
+
+// hreflang alternates: / (ar) ↔ /en/ (en)
+const path = Astro.url.pathname;
+const arPath = path.startsWith('/en/') ? path.slice(3) : path === '/en' ? '/' : path;
+const enPath = path.startsWith('/en') ? path : `/en${path === '/' ? '/' : path}`;
+
+// Cookieless analytics — only when configured (SETUP.md). Loads a script;
+// never any page data. Content-free events only (src/telemetry/analytics.ts).
+const plausibleDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN as string | undefined;
+
+const blogPath = locale === 'ar' ? '/blog/' : '/en/blog/';
+const homePath = locale === 'ar' ? '/' : '/en/';
+---
+
+<html lang={locale} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="alternate" hreflang="ar" href={new URL(arPath, Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(arPath, Astro.site)} />
+    {
+      plausibleDomain && (
+        <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
+      )
+    }
+  </head>
+  <body>
+    <header class="site-header">
+      <nav>
+        <a class="brand" href={homePath}>{BRAND.name}</a>
+        <a href={homePath}>{t.navTool}</a>
+        <a href={blogPath}>{t.navBlog}</a>
+        <a href={locale === 'ar' ? enPath : arPath} lang={locale === 'ar' ? 'en' : 'ar'}>
+          {locale === 'ar' ? 'English' : 'العربية'}
+        </a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>{t.footerPrivacy}</p>
+    </footer>
+    <script>
+      // Error monitoring is opt-in via env and fully scrubbed; the SDK chunk
+      // is not even fetched unless a DSN is configured.
+      if (import.meta.env.PUBLIC_SENTRY_DSN) {
+        import('../telemetry/sentry').then((m) => m.initErrorMonitoring());
+      }
+    </script>
+  </body>
+</html>

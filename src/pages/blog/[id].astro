@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const locale = post.data.lang;
+---
+
+<Base locale={locale} title={`${post.data.title} — FindInCSV`} description={post.data.description}>
+  <article class="prose" lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+    <h1>{post.data.title}</h1>
+    <p class="post-date">
+      {post.data.pubDate.toLocaleDateString(locale, { dateStyle: 'long' })} · {post.data.author}
+    </p>
+    <Content />
+  </article>
+</Base>
