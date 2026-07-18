@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 import { BRAND } from '../config';
 import { getStrings, type Locale } from '../i18n';
 
@@ -50,7 +51,10 @@ const homePath = locale === 'ar' ? '/' : '/en/';
   <body>
     <header class="site-header">
       <nav>
-        <a class="brand" href={homePath}>{BRAND.name}</a>
+        <a class="brand" href={homePath}>
+          <Icon name="search" />
+          {BRAND.name}
+        </a>
         <a href={homePath}>{t.navTool}</a>
         <a href={blogPath}>{t.navBlog}</a>
         <a href={locale === 'ar' ? enPath : arPath} lang={locale === 'ar' ? 'en' : 'ar'}>

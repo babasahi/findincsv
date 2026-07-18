@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import { getStrings, type Locale } from '../i18n';
 
 interface Props {
@@ -25,33 +26,44 @@ const runtimeStrings = {
 
   <div class="dropzone" data-dropzone tabindex="0" role="button" aria-label={t.dropHint}>
     <input type="file" accept=".csv,text/csv,text/plain" hidden data-file-input />
-    <p>{t.dropHint}</p>
+    <span class="dropzone-icon">
+      <Icon name="upload" />
+    </span>
+    <p class="dropzone-prompt">{t.dropHint}</p>
     <p class="privacy-note">{t.privacyNote}</p>
   </div>
 
-  <p class="file-meta" data-file-meta hidden></p>
+  <p class="file-meta" data-file-meta hidden>
+    <Icon name="file" />
+    <span data-file-meta-text></span>
+  </p>
 
-  <div class="controls" data-controls hidden>
-    <label class="control control-search">
-      <span class="control-label">{t.searchLabel}</span>
-      <input
-        type="search"
-        data-search
-        placeholder={t.searchPlaceholder}
-        autocomplete="off"
-        spellcheck="false"
-      />
-    </label>
-    <label class="control">
-      <span class="control-label">{t.columnLabel}</span>
-      <select data-column title={t.columnHint}>
-        <option value="all">{t.allColumns}</option>
-      </select>
-    </label>
-    <label class="control control-toggle">
-      <input type="checkbox" checked data-fuzzy />
-      <span>{t.fuzzyLabel}</span>
-    </label>
+  <div class="tool-controls" data-controls hidden>
+    <div class="search-row">
+      <label class="search-field">
+        <span class="sr-only">{t.searchLabel}</span>
+        <Icon name="search" />
+        <input
+          type="search"
+          data-search
+          placeholder={t.searchPlaceholder}
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </label>
+    </div>
+    <div class="options-row">
+      <label class="control">
+        <span class="control-label">{t.columnLabel}</span>
+        <select data-column title={t.columnHint}>
+          <option value="all">{t.allColumns}</option>
+        </select>
+      </label>
+      <label class="control control-toggle">
+        <input type="checkbox" checked data-fuzzy />
+        <span>{t.fuzzyLabel}</span>
+      </label>
+    </div>
   </div>
 
   <p class="status" data-status aria-live="polite"></p>

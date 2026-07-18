@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Tool from '../components/Tool.astro';
+import Icon from '../components/Icon.astro';
 import { getStrings } from '../i18n';
 
 const t = getStrings('ar');
@@ -16,6 +17,7 @@ const t = getStrings('ar');
 
   <ul class="features">
     <li>
+      <span class="feature-icon"><Icon name="check-circle" /></span>
       <h3>مطابقة عربية صحيحة</h3>
       <p>
         «مُحَمَّد» و«محمّد» و«محمد» نتيجة واحدة: تجاهل التشكيل، وتوحيد الهمزات والألف
@@ -23,6 +25,7 @@ const t = getStrings('ar');
       </p>
     </li>
     <li>
+      <span class="feature-icon"><Icon name="swap" /></span>
       <h3>بحث بلا ترتيب</h3>
       <p>
         اكتب الاسم الأول واسم العائلة فقط — «صالح داهي» يجد «صالح محفوظ داهي» ولو لم
@@ -30,10 +33,12 @@ const t = getStrings('ar');
       </p>
     </li>
     <li>
+      <span class="feature-icon"><Icon name="keyboard" /></span>
       <h3>تصحيح الأخطاء الإملائية</h3>
       <p>«سالح» يجد «صالح»، وsoleh يجد saleh — قابل للتفعيل والإيقاف.</p>
     </li>
     <li>
+      <span class="feature-icon"><Icon name="shield" /></span>
       <h3>ملفات ضخمة، خصوصية كاملة</h3>
       <p>
         مليون صف دون تجميد المتصفح، وملفك لا يغادر جهازك أبدًا — لا رفع، ولا خوادم، ولا

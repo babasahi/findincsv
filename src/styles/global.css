@@ -6,6 +6,11 @@
  * Latin in one family — no separate fallback font needed, and no
  * third-party font request, consistent with the no-network-requests
  * privacy promise). System stack is the fallback while it loads.
+ *
+ * Hierarchy: every text role below has one deliberate size/weight/color —
+ * see the "type roles" comment block. Icons are hand-drawn inline SVG
+ * (currentColor, no icon font, no emoji) so they cost nothing over the
+ * network and always match the theme.
  */
 
 @font-face {
@@ -49,19 +54,31 @@
     'Thmanyah Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Arabic',
     'Segoe UI Arabic', 'Noto Sans Arabic', 'Noto Naskh Arabic', Tahoma, sans-serif;
 
-  /* Calm, paper-like neutrals + a single deep teal accent — chosen to read
-     as professional and trustworthy (registry/compliance data, not a
-     flashy consumer app), not a stark black-on-white document. */
-  --color-text: #1c2624;
-  --color-muted: #5c6b66;
-  --color-bg: #faf9f6;
-  --color-surface: #f0f2ee;
-  --color-border: #dde2dc;
-  --color-accent: #0f5c52;
-  --color-accent-hover: #0b4a42;
-  --color-accent-soft: #e4efec;
+  /* Calm neutrals + one confident, muted blue accent — a color associated
+     with institutions and registries rather than consumer apps. No
+     gradients, no shadows, nothing shiny. */
+  --color-text: #1b2130;
+  --color-muted: #656e7d;
+  --color-faint: #8991a0;
+  --color-bg: #fbfaf8;
+  --color-surface: #f1f3f6;
+  --color-border: #dde1e8;
+  --color-accent: #2c4a75;
+  --color-accent-hover: #1f3555;
+  --color-accent-soft: #e7ecf4;
   --color-mark: #ffd97d;
   --radius: 10px;
+
+  /* Spacing scale — use these instead of ad-hoc rem values so rhythm stays
+     consistent between sections. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
 }
 
 * {
@@ -86,14 +103,38 @@ main {
   flex: 1;
   width: min(72rem, 100% - 2rem);
   margin-inline: auto;
-  padding-block: 1.5rem 3rem;
+  padding-block: var(--space-6) var(--space-8);
+}
+
+/* ---------- icons ---------- */
+/* Inline SVG, stroke=currentColor, so every icon inherits its context's
+   color automatically and never needs a network request or an icon font. */
+
+.icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------- header / footer ---------- */
 
 .site-header {
   border-block-end: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-bg);
 }
 
 .site-header nav {
@@ -101,64 +142,94 @@ main {
   margin-inline: auto;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-block: 0.75rem;
+  gap: var(--space-5);
+  padding-block: var(--space-3);
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--color-accent);
+  font-size: 1rem;
+  color: var(--color-text);
   text-decoration: none;
   margin-inline-end: auto;
 }
 
-.site-header a {
-  color: var(--color-text);
-  text-decoration: none;
+.brand .icon {
+  color: var(--color-accent);
 }
 
-.site-header a:hover {
-  color: var(--color-accent-hover);
+.site-header nav a:not(.brand) {
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.site-header nav a:not(.brand):hover {
+  color: var(--color-accent);
 }
 
 .site-footer {
   border-block-start: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: 0.9rem;
+  color: var(--color-faint);
+  font-size: 0.82rem;
   text-align: center;
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 /* ---------- hero ---------- */
+/*
+ * Type roles used across the page, largest/heaviest to smallest/lightest —
+ * this is the hierarchy that lets the eye know what to read first:
+ *   h1 (page title)     2rem–2.75rem / 700 / --color-text
+ *   section heading     1.05rem      / 700 / --color-text
+ *   body / labels large 1rem         / 400–600 / --color-text
+ *   tagline / body      0.95rem      / 400 / --color-muted
+ *   caption / meta      0.82rem      / 400 / --color-muted or --color-faint
+ */
+
+.hero {
+  max-width: 42rem;
+  margin-block-end: var(--space-7);
+}
 
 .hero h1 {
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-size: clamp(1.9rem, 3.6vw, 2.75rem);
   font-weight: 700;
-  margin-block: 0.5rem 0.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-block: 0 var(--space-3);
 }
 
 .hero .tagline {
   color: var(--color-muted);
-  font-size: 1.1rem;
-  margin-block-start: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-block: 0;
 }
 
 /* ---------- tool ---------- */
 
 .tool {
-  margin-block: 1.5rem;
+  margin-block-end: var(--space-8);
 }
 
 .dropzone {
-  border: 2px dashed var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1.5px dashed var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
-  padding: 2.5rem 1.5rem;
+  padding: var(--space-7) var(--space-5);
   text-align: center;
   cursor: pointer;
-  transition: border-color 120ms, background 120ms;
+  transition:
+    border-color 120ms,
+    background 120ms;
 }
 
 .dropzone:hover,
@@ -169,54 +240,127 @@ main {
   outline: none;
 }
 
-.dropzone p {
-  margin: 0.25rem 0;
+.dropzone-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-faint);
+  margin-block-end: var(--space-1);
+}
+
+.dropzone-icon .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.dropzone:hover .dropzone-icon,
+.dropzone:focus-visible .dropzone-icon,
+.dropzone.is-dragover .dropzone-icon {
+  color: var(--color-accent);
+}
+
+.dropzone-prompt {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .privacy-note {
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  margin: 0;
 }
 
 .file-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 1rem;
-  margin-block: 1rem;
-}
-
-.control {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.control-label {
-  font-size: 0.85rem;
-  color: var(--color-muted);
-}
-
-.control-search {
-  flex: 1 1 18rem;
-}
-
-.control input[type='search'],
-.control select {
-  font: inherit;
-  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+  margin-block: var(--space-4) 0;
+}
+
+.file-meta .icon {
+  color: var(--color-faint);
+  width: 1em;
+  height: 1em;
+}
+
+.tool-controls {
+  margin-block-start: var(--space-5);
+}
+
+/* Search is the primary action: its own full-width row, visually louder
+   than the secondary options below it. */
+.search-row {
+  margin-block-start: 0;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+}
+
+.search-field .icon {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-faint);
+  pointer-events: none;
+}
+
+.search-field input[type='search'] {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.75rem var(--space-4);
+  padding-inline-start: 2.5rem;
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-bg);
   color: inherit;
 }
 
-.control input[type='search']:focus,
+.search-field input[type='search']:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent-soft);
+}
+
+/* Secondary options: smaller, quieter, clearly subordinate to search. */
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  margin-block-start: var(--space-3);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.control-label {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.control select {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: inherit;
+}
+
 .control select:focus {
   border-color: var(--color-accent);
   outline: 2px solid var(--color-accent-soft);
@@ -225,15 +369,18 @@ main {
 .control-toggle {
   flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
-  padding-block-end: 0.55rem;
+  gap: var(--space-2);
   cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-muted);
 }
 
 .status {
-  min-height: 1.5rem;
+  min-height: 1.4rem;
   color: var(--color-muted);
+  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
+  margin-block: var(--space-4) var(--space-2);
 }
 
 /* ---------- results table ---------- */
@@ -252,12 +399,12 @@ main {
 .table-wrap table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .table-wrap th,
 .table-wrap td {
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border-block-end: 1px solid var(--color-border);
   text-align: start;
   white-space: nowrap;
@@ -272,6 +419,8 @@ main {
   background: var(--color-surface);
   z-index: 1;
   font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--color-muted);
 }
 
 .table-wrap tbody tr:hover {
@@ -280,6 +429,7 @@ main {
 
 mark {
   background: var(--color-mark);
+  color: #3d2f00;
   border-radius: 3px;
   padding-inline: 1px;
 }
@@ -287,11 +437,13 @@ mark {
 /* ---------- content pages (blog, landing) ---------- */
 
 .prose {
-  max-width: 46rem;
+  max-width: 42rem;
 }
 
 .prose h1 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
   line-height: 1.3;
+  margin-block-end: var(--space-2);
 }
 
 .prose img {
@@ -304,13 +456,14 @@ mark {
 }
 
 .post-list li {
-  margin-block: 1rem;
+  margin-block: var(--space-5);
 }
 
 .post-list .post-date {
-  color: var(--color-muted);
-  font-size: 0.85rem;
+  color: var(--color-faint);
+  font-size: 0.82rem;
   display: block;
+  margin-block-end: var(--space-1);
 }
 
 /* ---------- features ---------- */
@@ -318,26 +471,40 @@ mark {
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1rem;
-  margin-block: 2rem;
+  gap: var(--space-4);
+  margin-block: 0;
   padding: 0;
   list-style: none;
 }
 
 .features li {
-  background: var(--color-surface);
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: var(--space-4);
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  margin-block-end: var(--space-3);
 }
 
 .features h3 {
-  margin-block: 0 0.25rem;
-  font-size: 1rem;
+  margin-block: 0 var(--space-1);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .features p {
   margin: 0;
   color: var(--color-muted);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
 }

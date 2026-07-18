@@ -32,6 +32,7 @@ export function initTool(root: HTMLElement): void {
   const dropzone = root.querySelector<HTMLElement>('[data-dropzone]')!;
   const fileInput = root.querySelector<HTMLInputElement>('[data-file-input]')!;
   const fileMeta = root.querySelector<HTMLElement>('[data-file-meta]')!;
+  const fileMetaText = root.querySelector<HTMLElement>('[data-file-meta-text]')!;
   const controls = root.querySelector<HTMLElement>('[data-controls]')!;
   const searchBox = root.querySelector<HTMLInputElement>('[data-search]')!;
   const columnSelect = root.querySelector<HTMLSelectElement>('[data-column]')!;
@@ -163,7 +164,7 @@ export function initTool(root: HTMLElement): void {
         rowCount = msg.rowCount;
         track('file_loaded', { bucket: rowCountBucket(rowCount) });
         const f = fileInput.files?.[0];
-        fileMeta.textContent = format(strings.fileMeta, {
+        fileMetaText.textContent = format(strings.fileMeta, {
           name: f?.name ?? 'CSV',
           rows: numberFormat.format(rowCount),
           cols: headers.length,
