@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,4 +13,7 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
+  // Draft posts never get a route (see getStaticPaths filters), so they're
+  // already excluded here for free — nothing extra to filter.
+  integrations: [sitemap()],
 });
