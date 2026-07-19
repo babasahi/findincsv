@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git filter-repo *)"
+      "Bash(git filter-repo *)",
+      "mcp__claude_ai_Mixpanel__Get-Projects"
     ]
   }
 }
