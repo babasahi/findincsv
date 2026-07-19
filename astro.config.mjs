@@ -3,8 +3,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  // Set the real domain in SETUP.md step 1, then update this.
-  site: 'https://findincsv.example',
+  // Live on Netlify subdomain until findincsv.com is purchased (SETUP.md step 1).
+  site: 'https://findincsv.netlify.app',
   i18n: {
     defaultLocale: 'ar',
     locales: ['ar', 'en'],
