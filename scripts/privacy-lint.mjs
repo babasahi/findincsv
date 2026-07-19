@@ -6,9 +6,8 @@
  * fails the build if:
  *   1. Telemetry code (src/telemetry/**) references identifiers that could
  *      carry user content (queries, cells, rows, filenames, input values).
- *   2. Any code OUTSIDE src/telemetry imports the Sentry SDK or calls
- *      plausible directly — all telemetry must go through the scrubbed
- *      wrappers.
+ *   2. Any code OUTSIDE src/telemetry imports the Sentry or Mixpanel SDKs
+ *      directly — all telemetry must go through the scrubbed wrappers.
  *   3. Worker/core code (which touches file data) performs network calls.
  *
  * If you hit a false positive, do NOT weaken a pattern casually — see
@@ -87,15 +86,15 @@ for (const file of walk(TELEMETRY_DIR)) {
   }
 }
 
-// 2. Sentry/plausible only through the wrappers.
+// 2. Sentry/Mixpanel only through the wrappers.
 for (const file of walk(SRC)) {
   if (file.startsWith(TELEMETRY_DIR)) continue;
   const code = stripComments(readFileSync(file, 'utf8'));
   if (/@sentry\//.test(code)) {
     failures.push(`${relative(ROOT, file)}: imports Sentry directly — use src/telemetry/sentry.ts`);
   }
-  if (/\bplausible\s*\(/.test(code)) {
-    failures.push(`${relative(ROOT, file)}: calls plausible directly — use src/telemetry/analytics.ts`);
+  if (/mixpanel-browser/.test(code)) {
+    failures.push(`${relative(ROOT, file)}: imports mixpanel-browser directly — use src/telemetry/analytics.ts`);
   }
 }
 

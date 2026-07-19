@@ -83,38 +83,41 @@ describe('analytics', () => {
 
   it('sends only whitelisted props, dropping anything extra', () => {
     const calls: unknown[] = [];
-    (globalThis as { plausible?: unknown }).plausible = (
-      event: string,
-      opts?: { props?: Record<string, string> },
-    ) => calls.push([event, opts]);
+    (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {
+      track: (event: string, props: Record<string, string>) => calls.push([event, props]),
+    };
     try {
       // Simulate a bug where extra data is smuggled into props.
       track('file_loaded', { bucket: '10k-100k', smuggled: 'saleh dahi' } as never);
-      expect(calls).toEqual([['file_loaded', { props: { bucket: '10k-100k' } }]]);
+      expect(calls).toEqual([['file_loaded', { bucket: '10k-100k' }]]);
     } finally {
-      delete (globalThis as { plausible?: unknown }).plausible;
+      delete (globalThis as { __analyticsClient?: unknown }).__analyticsClient;
     }
   });
 
   it('ignores unknown events entirely', () => {
     const calls: unknown[] = [];
-    (globalThis as { plausible?: unknown }).plausible = (...args: unknown[]) => calls.push(args);
+    (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {
+      track: (...args: unknown[]) => calls.push(args),
+    };
     try {
       track('made_up_event' as never, {} as never);
       expect(calls).toEqual([]);
     } finally {
-      delete (globalThis as { plausible?: unknown }).plausible;
+      delete (globalThis as { __analyticsClient?: unknown }).__analyticsClient;
     }
   });
 
   it('never throws even if the analytics client explodes', () => {
-    (globalThis as { plausible?: unknown }).plausible = () => {
-      throw new Error('network down');
+    (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {
+      track: () => {
+        throw new Error('network down');
+      },
     };
     try {
       expect(() => track('engine_error', {})).not.toThrow();
     } finally {
-      delete (globalThis as { plausible?: unknown }).plausible;
+      delete (globalThis as { __analyticsClient?: unknown }).__analyticsClient;
     }
   });
 });

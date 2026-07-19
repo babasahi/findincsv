@@ -22,10 +22,6 @@ const path = Astro.url.pathname;
 const arPath = path.startsWith('/en/') ? path.slice(3) : path === '/en' ? '/' : path;
 const enPath = path.startsWith('/en') ? path : `/en${path === '/' ? '/' : path}`;
 
-// Cookieless analytics — only when configured (SETUP.md). Loads a script;
-// never any page data. Content-free events only (src/telemetry/analytics.ts).
-const plausibleDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN as string | undefined;
-
 const blogPath = locale === 'ar' ? '/blog/' : '/en/blog/';
 const homePath = locale === 'ar' ? '/' : '/en/';
 ---
@@ -42,11 +38,6 @@ const homePath = locale === 'ar' ? '/' : '/en/';
     <!-- Self-hosted (see src/styles/global.css); preload the two weights used above the fold. -->
     <link rel="preload" href="/fonts/thmanyah/thmanyahsans-Regular.otf" as="font" type="font/otf" crossorigin />
     <link rel="preload" href="/fonts/thmanyah/thmanyahsans-Bold.otf" as="font" type="font/otf" crossorigin />
-    {
-      plausibleDomain && (
-        <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
-      )
-    }
   </head>
   <body>
     <header class="site-header">
@@ -69,10 +60,13 @@ const homePath = locale === 'ar' ? '/' : '/en/';
       <p>{t.footerPrivacy}</p>
     </footer>
     <script>
-      // Error monitoring is opt-in via env and fully scrubbed; the SDK chunk
-      // is not even fetched unless a DSN is configured.
+      // Error monitoring and analytics are both opt-in via env and fully
+      // scrubbed/whitelisted; neither SDK chunk is fetched unless configured.
       if (import.meta.env.PUBLIC_SENTRY_DSN) {
         import('../telemetry/sentry').then((m) => m.initErrorMonitoring());
+      }
+      if (import.meta.env.PUBLIC_MIXPANEL_TOKEN) {
+        import('../telemetry/analytics').then((m) => m.initAnalytics());
       }
     </script>
   </body>

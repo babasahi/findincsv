@@ -1,6 +1,9 @@
 /**
- * Analytics wrapper — Plausible (cookieless), loaded only when
- * PUBLIC_PLAUSIBLE_DOMAIN is configured (see Base layout).
+ * Analytics wrapper — Mixpanel (free tier), loaded only when
+ * PUBLIC_MIXPANEL_TOKEN is configured (see Base layout). Initialized with no
+ * persistent identity: no cookies, no localStorage, no IP/geolocation
+ * storage, no autocapture, no session replay, no automatic pageviews — only
+ * the whitelisted track() calls below ever reach Mixpanel.
  *
  * HARD PRIVACY CONSTRAINT (CLAUDE.md): only the anonymous, content-free
  * events below may ever be recorded. No free-form strings can enter this
@@ -38,11 +41,11 @@ export function rowCountBucket(n: number): SizeBucket {
   return '>1m';
 }
 
-type PlausibleFn = (event: string, opts?: { props?: Record<string, string> }) => void;
+type AnalyticsClient = { track: (event: string, props: Record<string, string>) => void };
 
 /** Overridable for tests. */
-export function getPlausible(): PlausibleFn | undefined {
-  return (globalThis as { plausible?: PlausibleFn }).plausible;
+export function getAnalyticsClient(): AnalyticsClient | undefined {
+  return (globalThis as { __analyticsClient?: AnalyticsClient }).__analyticsClient;
 }
 
 /**
@@ -58,8 +61,29 @@ export function track<E extends EventName>(event: E, props: EventSpec[E]): void 
     if (typeof v === 'string') clean[key] = v;
   }
   try {
-    getPlausible()?.(event, { props: clean });
+    getAnalyticsClient()?.track(event, clean);
   } catch {
     // Analytics must never break the app.
   }
+}
+
+/**
+ * Initialize Mixpanel if a project token is configured. Safe to call
+ * unconditionally — without PUBLIC_MIXPANEL_TOKEN this is a no-op and no SDK
+ * traffic (or even the SDK chunk) ever loads.
+ */
+export async function initAnalytics(): Promise<void> {
+  const token = import.meta.env.PUBLIC_MIXPANEL_TOKEN as string | undefined;
+  if (!token) return;
+  const mixpanel = (await import('mixpanel-browser')).default;
+  mixpanel.init(token, {
+    autocapture: false,
+    ip: false,
+    disable_persistence: true,
+    track_pageview: false,
+    record_sessions_percent: 0,
+  });
+  (globalThis as { __analyticsClient?: AnalyticsClient }).__analyticsClient = {
+    track: (event, props) => mixpanel.track(event, props),
+  };
 }
