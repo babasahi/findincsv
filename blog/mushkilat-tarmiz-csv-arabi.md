@@ -5,7 +5,7 @@ pubDate: 2026-07-19
 lang: ar
 author: "فريق FindInCSV"
 keyword: "لماذا تظهر الحروف العربية مشوهة في ملف CSV"
-draft: true
+draft: false
 ---
 
 تفتح ملفًا مُصدَّرًا من نظام موارد بشرية أو سجل حكومي، وبدل «محمد» تجد

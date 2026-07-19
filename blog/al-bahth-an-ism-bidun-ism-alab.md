@@ -5,7 +5,7 @@ pubDate: 2026-07-19
 lang: ar
 author: "فريق FindInCSV"
 keyword: "البحث عن اسم بدون اسم الأب"
-draft: true
+draft: false
 ---
 
 موظف موارد بشرية يبحث عن «سالم الكعبي» في كشف رواتب فيه اثنا عشر ألف اسم.
