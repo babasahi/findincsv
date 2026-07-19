@@ -1,22 +1,21 @@
 /**
  * Analytics wrapper — Mixpanel (free tier), loaded only when
- * PUBLIC_MIXPANEL_TOKEN is configured (see Base layout). Initialized with no
- * persistent identity: no cookies, no localStorage, no IP/geolocation
- * storage, no autocapture, no session replay, no automatic pageviews — only
- * the whitelisted track() calls below ever reach Mixpanel.
+ * PUBLIC_MIXPANEL_TOKEN is configured (see Base layout). Full product
+ * analytics: autocapture, pageviews, cookie-based persistent IDs (retention,
+ * funnels), IP-based geolocation, exact counts — anything useful for running
+ * the business.
  *
- * HARD PRIVACY CONSTRAINT (CLAUDE.md): only the anonymous, content-free
- * events below may ever be recorded. No free-form strings can enter this
- * module's API: event names and prop values are closed unions, and the only
- * numeric input is bucketed before it leaves the function. Never add a
- * parameter that could carry file contents, names, or search text.
+ * HARD PRIVACY CONSTRAINT (CLAUDE.md, still non-negotiable): the CSV's cell
+ * values, filenames, and the literal text of a search query must NEVER
+ * reach this module or Mixpanel. Named events below carry only counts/enums.
+ * Session replay stays OFF (see initAnalytics) — the results table renders
+ * actual file content on screen, so a recording would leak it even though
+ * no structured event does.
  */
 
-export type SizeBucket = '<1k' | '1k-10k' | '10k-100k' | '100k-1m' | '>1m';
-
 type EventSpec = {
-  file_loaded: { bucket: SizeBucket };
-  search_run: { fuzzy: 'on' | 'off' };
+  file_loaded: { rowCount: number; columnCount: number };
+  search_run: { fuzzy: 'on' | 'off'; resultCount: number };
   fuzzy_toggled: { enabled: 'on' | 'off' };
   scope_changed: { scope: 'all' | 'single' };
   engine_error: Record<string, never>;
@@ -25,23 +24,15 @@ type EventSpec = {
 export type EventName = keyof EventSpec;
 
 const ALLOWED: Record<EventName, readonly string[]> = {
-  file_loaded: ['bucket'],
-  search_run: ['fuzzy'],
+  file_loaded: ['rowCount', 'columnCount'],
+  search_run: ['fuzzy', 'resultCount'],
   fuzzy_toggled: ['enabled'],
   scope_changed: ['scope'],
   engine_error: [],
 };
 
-/** Bucket a size so the exact figure never leaves the device. */
-export function rowCountBucket(n: number): SizeBucket {
-  if (n < 1_000) return '<1k';
-  if (n < 10_000) return '1k-10k';
-  if (n < 100_000) return '10k-100k';
-  if (n <= 1_000_000) return '100k-1m';
-  return '>1m';
-}
-
-type AnalyticsClient = { track: (event: string, props: Record<string, string>) => void };
+type PropValue = string | number;
+type AnalyticsClient = { track: (event: string, props: Record<string, PropValue>) => void };
 
 /** Overridable for tests. */
 export function getAnalyticsClient(): AnalyticsClient | undefined {
@@ -49,16 +40,17 @@ export function getAnalyticsClient(): AnalyticsClient | undefined {
 }
 
 /**
- * Record one whitelisted event. Unknown events or props are dropped, not
- * sent — the whitelist is the contract.
+ * Record one named event. Unknown events or props are dropped, not sent —
+ * the whitelist exists to catch typos/garbage events, not to restrict what
+ * business data is worth tracking.
  */
 export function track<E extends EventName>(event: E, props: EventSpec[E]): void {
   const allowed = ALLOWED[event] as readonly string[] | undefined;
   if (!allowed) return;
-  const clean: Record<string, string> = {};
+  const clean: Record<string, PropValue> = {};
   for (const key of allowed) {
     const v = (props as Record<string, unknown>)[key];
-    if (typeof v === 'string') clean[key] = v;
+    if (typeof v === 'string' || typeof v === 'number') clean[key] = v;
   }
   try {
     getAnalyticsClient()?.track(event, clean);
@@ -77,12 +69,12 @@ export async function initAnalytics(): Promise<void> {
   if (!token) return;
   const mixpanel = (await import('mixpanel-browser')).default;
   mixpanel.init(token, {
-    autocapture: false,
-    ip: false,
-    disable_persistence: true,
-    track_pageview: false,
+    autocapture: true,
+    track_pageview: true,
+    // Stays off regardless of analytics policy — see module doc comment.
     record_sessions_percent: 0,
   });
+  mixpanel.register({ locale: document.documentElement.lang });
   (globalThis as { __analyticsClient?: AnalyticsClient }).__analyticsClient = {
     track: (event, props) => mixpanel.track(event, props),
   };

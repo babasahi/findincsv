@@ -10,7 +10,7 @@ import type { HighlightedCell } from '../core';
 import type { FromWorker, ToWorker } from '../workers/messages';
 import { RENDER_CAP, SEARCH_DEBOUNCE_MS } from '../config';
 import { format, numberFormat } from '../i18n';
-import { rowCountBucket, track } from '../telemetry/analytics';
+import { track } from '../telemetry/analytics';
 
 /** Runtime strings injected by Tool.astro for the active locale. */
 interface RuntimeStrings {
@@ -162,7 +162,7 @@ export function initTool(root: HTMLElement): void {
       case 'loaded': {
         headers = msg.headers;
         rowCount = msg.rowCount;
-        track('file_loaded', { bucket: rowCountBucket(rowCount) });
+        track('file_loaded', { rowCount, columnCount: headers.length });
         const f = fileInput.files?.[0];
         fileMetaText.textContent = format(strings.fileMeta, {
           name: f?.name ?? 'CSV',
@@ -197,7 +197,9 @@ export function initTool(root: HTMLElement): void {
       case 'result': {
         if (msg.id !== searchId) return; // stale
         const isEmptyQuery = searchBox.value.trim().length === 0;
-        if (!isEmptyQuery) track('search_run', { fuzzy: fuzzyToggle.checked ? 'on' : 'off' });
+        if (!isEmptyQuery) {
+          track('search_run', { fuzzy: fuzzyToggle.checked ? 'on' : 'off', resultCount: msg.total });
+        }
         if (msg.total === 0) {
           status.textContent = strings.noMatches;
         } else if (msg.total > msg.rowIndices.length) {

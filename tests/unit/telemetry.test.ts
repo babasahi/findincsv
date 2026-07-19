@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scrubEvent, scrubUrl } from '../../src/telemetry/sentry';
-import { rowCountBucket, track } from '../../src/telemetry/analytics';
+import { track } from '../../src/telemetry/analytics';
 
 describe('scrubUrl', () => {
   it('keeps only origin and path', () => {
@@ -72,24 +72,15 @@ describe('scrubEvent', () => {
 });
 
 describe('analytics', () => {
-  it('buckets row counts so exact figures never leave', () => {
-    expect(rowCountBucket(0)).toBe('<1k');
-    expect(rowCountBucket(999)).toBe('<1k');
-    expect(rowCountBucket(1_000)).toBe('1k-10k');
-    expect(rowCountBucket(99_999)).toBe('10k-100k');
-    expect(rowCountBucket(500_000)).toBe('100k-1m');
-    expect(rowCountBucket(1_000_001)).toBe('>1m');
-  });
-
   it('sends only whitelisted props, dropping anything extra', () => {
     const calls: unknown[] = [];
     (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {
-      track: (event: string, props: Record<string, string>) => calls.push([event, props]),
+      track: (event: string, props: Record<string, string | number>) => calls.push([event, props]),
     };
     try {
       // Simulate a bug where extra data is smuggled into props.
-      track('file_loaded', { bucket: '10k-100k', smuggled: 'saleh dahi' } as never);
-      expect(calls).toEqual([['file_loaded', { bucket: '10k-100k' }]]);
+      track('file_loaded', { rowCount: 42_000, columnCount: 6, smuggled: 'saleh dahi' } as never);
+      expect(calls).toEqual([['file_loaded', { rowCount: 42_000, columnCount: 6 }]]);
     } finally {
       delete (globalThis as { __analyticsClient?: unknown }).__analyticsClient;
     }

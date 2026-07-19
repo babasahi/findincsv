@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url';
  * THE privacy test: no network request — to any host — may ever contain the
  * CSV contents, the filename, or the search query. This is the product
  * promise and a merge-blocking guarantee (CLAUDE.md).
+ *
+ * The zero-third-party-requests assertion below is currently also true, but
+ * only because no PUBLIC_MIXPANEL_TOKEN is set in this test's env —
+ * analytics is intentionally unrestricted in production (CLAUDE.md) and
+ * will make third-party calls there. That's fine; this test only proves
+ * none of them, here or in prod, ever carry file/query content.
  */
 
 const SENTINEL_CELL = 'ZXQSENTINELNAME';
