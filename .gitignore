@@ -15,3 +15,11 @@ tests/fixtures/generated/
 
 # os / editor
 .DS_Store
+
+# internal operating docs — repo is public; these stay local-only
+# (2026-07-19: kept out of history via git-filter-repo, see LOG.md)
+/CLAUDE.md
+/LOG.md
+/SETUP.md
+/README.md
+/.claude/commands/
