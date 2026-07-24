@@ -17,6 +17,10 @@ export const en: Strings = {
   allColumns: 'All columns',
   columnHint: 'Pick the name column for faster, more precise results.',
   fuzzyLabel: 'Typo tolerance',
+  wholeWordLabel: 'Whole word',
+  wholeWordHint: 'Only match a full word, e.g. searching "alem" won\'t show "salem"',
+  prefixLabel: 'Starts with',
+  prefixHint: 'Match the start of a word, e.g. "el" matches "elboukhary"',
 
   parsing: 'Reading file…',
   indexing: 'Indexing…',

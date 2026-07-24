@@ -12,7 +12,7 @@ export {
 } from './normalize.ts';
 export { tokenize } from './tokenize.ts';
 export { boundedLevenshtein } from './levenshtein.ts';
-export { fuzzyThresholdFor, tokenMatchesIndex, rowMatches } from './match.ts';
+export { fuzzyThresholdFor, tokenMatchesIndex, rowMatches, type MatchMode } from './match.ts';
 export { makeIndexString, buildIndex, type SearchScope } from './indexer.ts';
 export { searchIndex, type SearchOptions, type SearchResult } from './search.ts';
 export { highlightCell, type HighlightRange, type HighlightedCell } from './highlight.ts';

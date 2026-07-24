@@ -56,10 +56,10 @@ async function rebuildIndex(): Promise<void> {
 }
 
 function runSearch(msg: Extract<ToWorker, { type: 'search' }>): void {
-  const { id, query, fuzzy, limit } = msg;
-  const { total, indices, tokens } = searchIndex(index, query, { fuzzy, limit });
+  const { id, query, fuzzy, matchMode, limit } = msg;
+  const { total, indices, tokens } = searchIndex(index, query, { fuzzy, matchMode, limit });
   const cells = indices.map((rowIdx) =>
-    (rows[rowIdx] as string[]).map((cell) => highlightCell(cell, tokens, fuzzy)),
+    (rows[rowIdx] as string[]).map((cell) => highlightCell(cell, tokens, fuzzy, matchMode)),
   );
   post({ type: 'result', id, total, rowIndices: indices, cells });
 }

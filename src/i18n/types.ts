@@ -21,6 +21,10 @@ export interface Strings {
   allColumns: string;
   columnHint: string;
   fuzzyLabel: string;
+  wholeWordLabel: string;
+  wholeWordHint: string;
+  prefixLabel: string;
+  prefixHint: string;
 
   parsing: string;
   indexing: string;

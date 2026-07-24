@@ -1,12 +1,14 @@
 import { normalizeArabic, type NormalizeOptions } from './normalize.ts';
 import { tokenize } from './tokenize.ts';
-import { rowMatches } from './match.ts';
+import { rowMatches, type MatchMode } from './match.ts';
 
 export interface SearchOptions {
   /** Typo tolerance (bounded edit distance per token). Default on in the UI. */
   fuzzy: boolean;
   /** Maximum number of row indices returned; the true total is always counted. */
   limit: number;
+  /** Exact-step strictness: 'loose' (default), 'prefix', or 'whole' word. */
+  matchMode?: MatchMode;
   normalize?: NormalizeOptions;
 }
 
@@ -26,7 +28,7 @@ export interface SearchResult {
 export function searchIndex(
   index: readonly string[],
   query: string,
-  { fuzzy, limit, normalize }: SearchOptions,
+  { fuzzy, limit, matchMode = 'loose', normalize }: SearchOptions,
 ): SearchResult {
   const tokens = tokenize(normalizeArabic(query, normalize));
   const indices: number[] = [];
@@ -40,7 +42,7 @@ export function searchIndex(
   }
 
   for (let i = 0; i < index.length; i++) {
-    if (rowMatches(index[i] as string, tokens, fuzzy)) {
+    if (rowMatches(index[i] as string, tokens, fuzzy, matchMode)) {
       total++;
       if (indices.length < limit) indices.push(i);
     }

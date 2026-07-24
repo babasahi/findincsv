@@ -23,6 +23,25 @@ describe('highlightCell — exact substrings', () => {
   });
 });
 
+describe('highlightCell — matchMode strictness', () => {
+  it('whole mode does not highlight alem inside Salem', () => {
+    const h = highlightCell('Abdellahi Salem', ['alem'], false, 'whole');
+    expect(h.ranges).toEqual([]);
+  });
+
+  it('whole mode highlights alem when it is its own word', () => {
+    const h = highlightCell('El Alem', ['alem'], false, 'whole');
+    expect(marked(h)).toEqual(['Alem']);
+  });
+
+  it('prefix mode highlights el at the start of Elboukhary but not inside Daniel', () => {
+    const h1 = highlightCell('Mohamed Elboukhary', ['el'], false, 'prefix');
+    expect(marked(h1)).toEqual(['El']);
+    const h2 = highlightCell('Daniel Smith', ['el'], false, 'prefix');
+    expect(h2.ranges).toEqual([]);
+  });
+});
+
 describe('highlightCell — Arabic with diacritics', () => {
   it('token محمد highlights the whole original مُحَمَّد including harakat', () => {
     const original = 'مُحَمَّد';

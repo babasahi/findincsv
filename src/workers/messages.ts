@@ -1,11 +1,19 @@
 import type { HighlightedCell } from '../core';
 import type { SearchScope } from '../core';
+import type { MatchMode } from '../core';
 
 /** Messages main thread → engine worker. */
 export type ToWorker =
   | { type: 'load'; file: File }
   | { type: 'scope'; scope: SearchScope }
-  | { type: 'search'; id: number; query: string; fuzzy: boolean; limit: number };
+  | {
+      type: 'search';
+      id: number;
+      query: string;
+      fuzzy: boolean;
+      matchMode: MatchMode;
+      limit: number;
+    };
 
 /** Messages engine worker → main thread. */
 export type FromWorker =

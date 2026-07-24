@@ -37,6 +37,8 @@ export function initTool(root: HTMLElement): void {
   const searchBox = root.querySelector<HTMLInputElement>('[data-search]')!;
   const columnSelect = root.querySelector<HTMLSelectElement>('[data-column]')!;
   const fuzzyToggle = root.querySelector<HTMLInputElement>('[data-fuzzy]')!;
+  const wholeWordToggle = root.querySelector<HTMLInputElement>('[data-whole-word]')!;
+  const prefixToggle = root.querySelector<HTMLInputElement>('[data-prefix]')!;
   const status = root.querySelector<HTMLElement>('[data-status]')!;
   const tableWrap = root.querySelector<HTMLElement>('[data-table-wrap]')!;
 
@@ -82,11 +84,13 @@ export function initTool(root: HTMLElement): void {
 
   function requestSearch(): void {
     searchId++;
+    const matchMode = wholeWordToggle.checked ? 'whole' : prefixToggle.checked ? 'prefix' : 'loose';
     send({
       type: 'search',
       id: searchId,
       query: searchBox.value,
       fuzzy: fuzzyToggle.checked,
+      matchMode,
       limit: RENDER_CAP,
     });
   }
@@ -99,6 +103,16 @@ export function initTool(root: HTMLElement): void {
   searchBox.addEventListener('input', debouncedSearch);
   fuzzyToggle.addEventListener('change', () => {
     track('fuzzy_toggled', { enabled: fuzzyToggle.checked ? 'on' : 'off' });
+    requestSearch();
+  });
+  wholeWordToggle.addEventListener('change', () => {
+    if (wholeWordToggle.checked) prefixToggle.checked = false;
+    track('whole_word_toggled', { enabled: wholeWordToggle.checked ? 'on' : 'off' });
+    requestSearch();
+  });
+  prefixToggle.addEventListener('change', () => {
+    if (prefixToggle.checked) wholeWordToggle.checked = false;
+    track('prefix_toggled', { enabled: prefixToggle.checked ? 'on' : 'off' });
     requestSearch();
   });
   columnSelect.addEventListener('change', () => {

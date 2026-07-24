@@ -17,6 +17,8 @@ type EventSpec = {
   file_loaded: { rowCount: number; columnCount: number };
   search_run: { fuzzy: 'on' | 'off'; resultCount: number };
   fuzzy_toggled: { enabled: 'on' | 'off' };
+  whole_word_toggled: { enabled: 'on' | 'off' };
+  prefix_toggled: { enabled: 'on' | 'off' };
   scope_changed: { scope: 'all' | 'single' };
   engine_error: Record<string, never>;
 };
@@ -27,6 +29,8 @@ const ALLOWED: Record<EventName, readonly string[]> = {
   file_loaded: ['rowCount', 'columnCount'],
   search_run: ['fuzzy', 'resultCount'],
   fuzzy_toggled: ['enabled'],
+  whole_word_toggled: ['enabled'],
+  prefix_toggled: ['enabled'],
   scope_changed: ['scope'],
   engine_error: [],
 };

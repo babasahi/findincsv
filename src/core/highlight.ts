@@ -1,6 +1,18 @@
 import { normalizeWithMap, type NormalizeOptions } from './normalize.ts';
-import { fuzzyThresholdFor } from './match.ts';
+import { fuzzyThresholdFor, type MatchMode } from './match.ts';
 import { boundedLevenshtein } from './levenshtein.ts';
+
+const SPACE = 0x20;
+
+/** Is `i` the start of a whitespace-delimited word (string start or preceded by a space)? */
+function isWordStart(str: string, i: number): boolean {
+  return i <= 0 || str.charCodeAt(i - 1) === SPACE;
+}
+
+/** Is `i` the end of a whitespace-delimited word (string end or followed by a space)? */
+function isWordEnd(str: string, i: number): boolean {
+  return i >= str.length || str.charCodeAt(i) === SPACE;
+}
 
 /** A half-open [start, end) range into the `display` string. */
 export interface HighlightRange {
@@ -49,6 +61,7 @@ export function highlightCell(
   original: string,
   tokens: readonly string[],
   fuzzy: boolean,
+  mode: MatchMode = 'loose',
   options?: NormalizeOptions,
 ): HighlightedCell {
   const { norm, source, starts, ends } = normalizeWithMap(original, options);
@@ -65,15 +78,17 @@ export function highlightCell(
   for (const token of tokens) {
     if (token.length === 0) continue;
 
-    // Exact (substring) occurrences.
+    // Exact (substring) occurrences, constrained by `mode`.
     let from = 0;
     let found = false;
     for (;;) {
       const at = norm.indexOf(token, from);
       if (at < 0) break;
+      from = at + 1;
+      if (mode !== 'loose' && !isWordStart(norm, at)) continue;
+      if (mode === 'whole' && !isWordEnd(norm, at + token.length)) continue;
       found = true;
       pushRange(at, at + token.length);
-      from = at + 1;
     }
 
     // Fuzzy: highlight whole words within the bound.

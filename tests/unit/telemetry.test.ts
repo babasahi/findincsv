@@ -86,6 +86,23 @@ describe('analytics', () => {
     }
   });
 
+  it('sends the whole-word and starts-with toggle events', () => {
+    const calls: unknown[] = [];
+    (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {
+      track: (event: string, props: Record<string, string | number>) => calls.push([event, props]),
+    };
+    try {
+      track('whole_word_toggled', { enabled: 'on' });
+      track('prefix_toggled', { enabled: 'off' });
+      expect(calls).toEqual([
+        ['whole_word_toggled', { enabled: 'on' }],
+        ['prefix_toggled', { enabled: 'off' }],
+      ]);
+    } finally {
+      delete (globalThis as { __analyticsClient?: unknown }).__analyticsClient;
+    }
+  });
+
   it('ignores unknown events entirely', () => {
     const calls: unknown[] = [];
     (globalThis as { __analyticsClient?: unknown }).__analyticsClient = {

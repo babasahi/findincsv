@@ -61,6 +61,37 @@ describe('tokenMatchesIndex — fuzzy semantics', () => {
   });
 });
 
+describe('tokenMatchesIndex — matchMode strictness', () => {
+  it('loose (default) matches alem inside salem', () => {
+    expect(tokenMatchesIndex('arafat salem', 'alem', false)).toBe(true);
+  });
+
+  it('whole mode rejects alem inside salem, but matches it as its own word', () => {
+    expect(tokenMatchesIndex('arafat salem', 'alem', false, 'whole')).toBe(false);
+    expect(tokenMatchesIndex('memah abdellahi el alem', 'alem', false, 'whole')).toBe(true);
+  });
+
+  it('whole mode rejects el inside elboukhary, but matches it as its own word', () => {
+    expect(tokenMatchesIndex('mohamed elboukhary', 'el', false, 'whole')).toBe(false);
+    expect(tokenMatchesIndex('el ghazwany mohamed', 'el', false, 'whole')).toBe(true);
+  });
+
+  it('prefix mode matches a word start (el → elboukhary) but not a word end (el → daniel)', () => {
+    expect(tokenMatchesIndex('mohamed elboukhary', 'el', false, 'prefix')).toBe(true);
+    expect(tokenMatchesIndex('daniel smith', 'el', false, 'prefix')).toBe(false);
+  });
+
+  it('whole mode is stricter than prefix mode for a partial word', () => {
+    expect(tokenMatchesIndex('elboukhary family', 'el', false, 'whole')).toBe(false);
+    expect(tokenMatchesIndex('elboukhary family', 'el', false, 'prefix')).toBe(true);
+  });
+
+  it('fuzzy fallback stays whole-word regardless of matchMode', () => {
+    expect(tokenMatchesIndex('saleh mahfoud dahi', 'soleh', true, 'whole')).toBe(true);
+    expect(tokenMatchesIndex('saleh mahfoud dahi', 'soleh', true, 'prefix')).toBe(true);
+  });
+});
+
 describe('rowMatches — order-independent multi-token', () => {
   const index = makeIndexString(['Saleh Mahfoud Dahi'], 0);
 
@@ -120,6 +151,28 @@ describe('Arabic end-to-end matching', () => {
   it('Arabic-Indic digits match Western digits in data', () => {
     const r = searchIndex(index, '١٩٨٥', { fuzzy: false, limit: 10 });
     expect(r.indices).toEqual([1]);
+  });
+});
+
+describe('searchIndex — matchMode (regression: "El Alem" over-matching "Salem")', () => {
+  const rows = [
+    ['Memah Abdellahi El Alem'], // the genuine match
+    ['Abdellahi Mohamed Salem Abdoullah'], // "salem" contains "alem"
+    ['Mohamed Mohamed Salem Mohemed Elboukhary'], // "salem" and "elboukhary"
+    ['Ely Cheikh Salem Salem'],
+  ];
+  const index = buildIndex(rows, 'all');
+
+  it('loose mode (default) over-matches Salem rows too', () => {
+    const r = searchIndex(index, 'el alem', { fuzzy: false, limit: 10 });
+    expect(r.indices).toContain(0);
+    expect(r.total).toBeGreaterThan(1);
+  });
+
+  it('whole-word mode matches only the genuine "El Alem" row', () => {
+    const r = searchIndex(index, 'el alem', { fuzzy: false, limit: 10, matchMode: 'whole' });
+    expect(r.indices).toEqual([0]);
+    expect(r.total).toBe(1);
   });
 });
 
